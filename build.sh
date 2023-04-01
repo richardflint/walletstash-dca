@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-docker build . -t walletstash-dca:latest
+docker build . -t walletstash-dca-server:latest

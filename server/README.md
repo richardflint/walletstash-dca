@@ -1,7 +1,7 @@
 ## Description
 
 Walletstash dca server is a backend service that runs on a cron job, it runs different configurations that can be used
-to connect to an exchange, convert deposits and withdraw to a non-custodial wallet. 
+to connect to an exchange, convert deposits and withdraw to a noncustodial wallet. 
 
 ## Installation
 
