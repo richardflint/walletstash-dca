@@ -8,6 +8,7 @@ import { RegisterUserDto } from './users/dto/register-user.dto';
 const { format } = winston;
 
 const logsDir = process.env.LOGS_DIR || '../logs/';
+const port = process.env.PORT || 3000;
 
 const enumerateErrorFormat = format((info) => {
   if (info.message instanceof Error) {
@@ -86,7 +87,7 @@ async function bootstrap() {
   const usersService = app.get(UsersService);
   await seed(usersService);
 
-  await app.listen(3000);
+  await app.listen(port);
 }
 
 bootstrap();
