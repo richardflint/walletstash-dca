@@ -3,6 +3,7 @@ import { ExchangeConfigurationsService } from './exchange-configurations.service
 import { Repository } from 'typeorm';
 import { ExchangeConfiguration } from './exchange-configuration.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import {ExchangeMarket} from "../exchanges/exchange-market.entity";
 
 const configurations = [];
 const configuration = {};
@@ -38,5 +39,23 @@ describe('ExchangeConfigurationsService', () => {
 
   test('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('update', () => {
+    test('returns null when configuration can not be found', async () => {
+      repository.findOneBy = jest.fn().mockResolvedValue(null);
+
+      const configuration = await service.update(1, null);
+      expect(configuration).toBeNull();
+    });
+  })
+
+  describe('delete', () => {
+    test('returns null when configuration can not be found', async () => {
+      repository.findOneBy = jest.fn().mockResolvedValue(null);
+
+      const configuration = await service.remove(1);
+      expect(configuration).toBeNull();
+    });
   });
 });

@@ -33,12 +33,24 @@ export class ExchangeConfigurationsService {
       id,
     });
 
+    if(foundExchange == null) {
+      return null;
+    }
+
     return this.exchangeConfigurationRepository.save(
       foundExchange.mapTo(exchangeConfiguration),
     );
   }
 
   async remove(id: number): Promise<void> {
+    const foundExchange = await this.exchangeConfigurationRepository.findOneBy({
+      id,
+    });
+
+    if(foundExchange == null) {
+      return null;
+    }
+
     await this.exchangeConfigurationRepository.delete(id);
   }
 }
