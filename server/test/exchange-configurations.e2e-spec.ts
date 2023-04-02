@@ -64,7 +64,7 @@ describe('ExchangeConfigurationsController (e2e)', () => {
     app.setGlobalPrefix('api');
     await app.init();
     createTestDataSet();
-    await delay(500);
+    await delay(250);
   });
 
   it('create [POST /exchange-configurations]', async () => {
