@@ -10,6 +10,8 @@ import { ExchangeConfigurationsModule } from '../src/exchange-configurations/exc
 import { AuthModule } from '../src/auth/auth.module';
 import { User } from '../src/users/user.entity';
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 describe('ExchangeConfigurationsController (e2e)', () => {
   let app: INestApplication;
 
@@ -62,6 +64,7 @@ describe('ExchangeConfigurationsController (e2e)', () => {
     app.setGlobalPrefix('api');
     await app.init();
     createTestDataSet();
+    await delay(1000);
   });
 
   it('create [POST /exchange-configurations]', async () => {
