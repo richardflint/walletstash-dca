@@ -46,6 +46,8 @@ $ docker save --output walletstash-dca-server.tar walletstash-dca-server:latest
 
 $ scp walletstash-dca-server.tar root@<ip>:/root/walletstash-dca-server/
 
+$ docker load --input walletstash-dca-server.tar
+
 ```
 
 ## Database migrations
