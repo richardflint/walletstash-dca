@@ -38,10 +38,7 @@ async function seed(usersService: UsersService) {
   const aUser = await usersService.findOne(username);
 
   if (!aUser) {
-    // const username = 'admin';
     const password = process.env.SEED_PASSWORD;
-    // const password = 'password';
-
     const user = {
       username,
       password,
