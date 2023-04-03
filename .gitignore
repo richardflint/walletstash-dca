@@ -1,0 +1,7 @@
+/db/
+/logs/
+/server/build/
+/server/coverage/
+/server/node_modules/
+/server/dist/
+/server/db/
