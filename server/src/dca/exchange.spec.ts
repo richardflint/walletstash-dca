@@ -120,7 +120,8 @@ describe('Exchange', () => {
         id: 'btc',
         code: 'BTC',
         precision: 8,
-        limits: { withdraw: { min: 10 } },
+        fee: 0.01,
+        limits: { withdraw: { min: 9.99 } },
       } as Currency;
 
       mockExchange = createMock<CcxtExchange>({
@@ -145,7 +146,7 @@ describe('Exchange', () => {
         customWithdrawParams: '{"key":"ledger"}',
       } as ExchangeConfiguration;
 
-      const expectedWithdrawal = new Withdrawal('test_id', 'BTC', 10);
+      const expectedWithdrawal = new Withdrawal('test_id', 'BTC', 9.99);
       expect(await exchange.performWithdrawal(10, configuration)).toEqual(
         expectedWithdrawal,
       );
@@ -161,6 +162,7 @@ describe('Exchange', () => {
         id: 'btc',
         code: 'BTC',
         precision: 8,
+        fee: 0.01,
         limits: {},
       } as Currency;
 
@@ -184,7 +186,7 @@ describe('Exchange', () => {
         customWithdrawParams: '{"key":"ledger"}',
       } as ExchangeConfiguration;
 
-      const expectedWithdrawal = new Withdrawal('test_id', 'BTC', 10);
+      const expectedWithdrawal = new Withdrawal('test_id', 'BTC', 9.99);
       expect(await exchange.performWithdrawal(10, configuration)).toEqual(
         expectedWithdrawal,
       );
