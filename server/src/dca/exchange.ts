@@ -43,10 +43,13 @@ export class Exchange {
       configuration.outputSymbol,
     );
 
-    if (!minWithdrawLimit || amount >= minWithdrawLimit) {
+    const withdrawalFee = this.getWithdrawalFee(configuration.outputSymbol);
+    const amountWithoutFee = amount - withdrawalFee;
+
+    if (!minWithdrawLimit || amountWithoutFee >= minWithdrawLimit) {
       const withdrawal: WithdrawalResponse = await this.exchange.withdraw(
         configuration.withdrawalSymbol,
-        amount,
+        amountWithoutFee,
         configuration.withdrawalAddress,
         configuration.withdrawalTag,
         JSON.parse(configuration.customWithdrawParams),
@@ -55,7 +58,7 @@ export class Exchange {
       return new Withdrawal(
         withdrawal.id,
         configuration.withdrawalSymbol,
-        amount,
+        amountWithoutFee,
       );
     } else {
       throw new Error('Withdrawal amount below exchange limit.');
@@ -72,5 +75,9 @@ export class Exchange {
 
   private getMinWithdrawLimit(outputSymbol: string): number {
     return this.exchange.currencies[outputSymbol]['limits'].withdraw?.min;
+  }
+
+  private getWithdrawalFee(outputSymbol: string): number {
+    return this.exchange.currencies[outputSymbol]['fee'];
   }
 }
