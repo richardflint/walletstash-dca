@@ -43,13 +43,13 @@ export class Exchange {
       configuration.outputSymbol,
     );
 
-    const withdrawalFee = this.getWithdrawalFee(configuration.outputSymbol);
-    const amountWithoutFee = amount - withdrawalFee;
+    const withdrawalFee = await this.getWithdrawalFee(amount, configuration);
+    const amountMinusFee = amount - withdrawalFee;
 
-    if (!minWithdrawLimit || amountWithoutFee >= minWithdrawLimit) {
+    if (!minWithdrawLimit || amountMinusFee >= minWithdrawLimit) {
       const withdrawal: WithdrawalResponse = await this.exchange.withdraw(
         configuration.withdrawalSymbol,
-        amountWithoutFee,
+        amountMinusFee,
         configuration.withdrawalAddress,
         configuration.withdrawalTag,
         JSON.parse(configuration.customWithdrawParams),
@@ -58,7 +58,7 @@ export class Exchange {
       return new Withdrawal(
         withdrawal.id,
         configuration.withdrawalSymbol,
-        amountWithoutFee,
+        amountMinusFee,
       );
     } else {
       throw new Error('Withdrawal amount below exchange limit.');
@@ -77,7 +77,32 @@ export class Exchange {
     return this.exchange.currencies[outputSymbol]['limits'].withdraw?.min;
   }
 
-  private getWithdrawalFee(outputSymbol: string): number {
-    return this.exchange.currencies[outputSymbol]['fee'];
+  private async getWithdrawalFee(
+    amount: number,
+    configuration: ExchangeConfiguration,
+  ): Promise<number> {
+    if (this.hasWithdrawalFee(configuration.outputSymbol)) {
+      const fee = this.exchange.currencies[configuration.outputSymbol]['fee'];
+      return fee ? fee : 0;
+    } else {
+      switch (configuration.exchangeKey) {
+        case 'kraken': {
+          const withdrawInfo = await this.exchange.privatePostWithdrawInfo({
+            asset: configuration.outputSymbol,
+            key: configuration.withdrawalTag,
+            amount,
+          });
+          return withdrawInfo.result.fee;
+        }
+        default: {
+          return 0;
+        }
+      }
+    }
+  }
+
+  private hasWithdrawalFee(outputSymbol: string): boolean {
+    const fee = this.exchange.currencies[outputSymbol]['fee'];
+    return fee ? true : false;
   }
 }
