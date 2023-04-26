@@ -4,6 +4,16 @@ import { connect } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import * as actions from "../../actions";
 import ConfigurationForm from "../ConfigurationForm";
+import {
+  defaultExchanges,
+  defaultInputSymbols,
+  defaultOutputSymbols,
+  defaultTradingPairs,
+  emptyOption,
+  extractExchanges,
+  extractTradingPairs,
+  marketSearch,
+} from "../MarketSearch";
 
 const getConfiguration = async (token, id) => {
   const config = {
@@ -17,40 +27,29 @@ const getConfiguration = async (token, id) => {
   return response.data;
 };
 
-const marketSearch = async (token, formProps) => {
+const updateConfiguration = async (token, id, formProps, callback) => {
   const config = {
     headers: { Authorization: `Bearer ${token}` },
   };
 
-  let performSearch = false;
-
-  let params = "";
-
-  if (formProps) {
-    if (formProps.inputSymbol) {
-      params = params.concat(`inputSymbol=${formProps.inputSymbol}`);
-      performSearch = true;
-    }
-
-    if (formProps.outputSymbol) {
-      params = params.concat(`&outputSymbol=${formProps.outputSymbol}`);
-      performSearch = true;
-    }
-
-    if (formProps.tradingPair) {
-      params = params.concat(`&marketSymbol=${formProps.tradingPair}`);
-      performSearch = true;
-    }
-  }
-
-  if (performSearch) {
-    const response = await axios.get(`/api/search?${params}`, config);
-    return response.data;
+  try {
+    await axios.put(
+      `/api/exchange-configurations/${id}`,
+      formProps,
+      config
+    );
+    callback();
+  } catch (e) {
+    return { error: "Issue saving DCA configuration" };
   }
 };
 
-const EditConfiguration = ({ auth, search, updateConfiguration, marketSearch }) => {
+const EditConfiguration = ({ auth }) => {
   const [configuration, setConfiguration] = useState();
+  const [inputSymbols, setInputSymbols] = useState(defaultInputSymbols);
+  const [outputSymbols, setOutputSymbols] = useState(defaultOutputSymbols);
+  const [tradingPairs, setTradingPairs] = useState(defaultTradingPairs);
+  const [exchanges, setExchanges] = useState(defaultExchanges);
   const { id } = useParams();
   let navigate = useNavigate();
 
@@ -81,7 +80,13 @@ const EditConfiguration = ({ auth, search, updateConfiguration, marketSearch }) 
 
   const onMarketSearch = (formProps) => {
     const token = auth.authenticated;
-    marketSearch(token, formProps);
+    marketSearch(token, formProps).then((data) => {
+      setTradingPairs([
+        emptyOption,
+        ...extractTradingPairs(data),
+      ]);
+      setExchanges([emptyOption, ...extractExchanges(data)]);
+    });
   };
 
   return (
@@ -99,10 +104,10 @@ const EditConfiguration = ({ auth, search, updateConfiguration, marketSearch }) 
             onSubmit={onSubmit}
             initalValues={configuration}
             onMarketSearch={onMarketSearch}
-            inputSymbols={search.inputSymbols}
-            outputSymbols={search.outputSymbols}
-            tradingPairs={search.tradingPairs}
-            exchanges={search.exchanges}
+            inputSymbols={inputSymbols}
+            outputSymbols={outputSymbols}
+            tradingPairs={tradingPairs}
+            exchanges={exchanges}
           />
         </div>
       </main>
@@ -113,12 +118,6 @@ const EditConfiguration = ({ auth, search, updateConfiguration, marketSearch }) 
 function mapStateToProps(state) {
   return {
     auth: { authenticated: state.auth.authenticated },
-    search: {
-      inputSymbols: state.search.inputSymbols,
-      outputSymbols: state.search.outputSymbols,
-      tradingPairs: state.search.tradingPairs,
-      exchanges: state.search.exchanges,
-    },
   };
 }
 

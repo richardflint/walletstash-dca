@@ -1,11 +1,9 @@
 import auth from "./auth";
 import configurations from "./configurations";
-import search from "./search";
 
 const reducers = {
-    auth,
-    configurations,
-    search,
+  auth,
+  configurations,
 };
 
 export default reducers;

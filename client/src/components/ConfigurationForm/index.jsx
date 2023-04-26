@@ -3,8 +3,6 @@ import Input from "./Input";
 import SearchSelect from "./SearchSelect";
 import * as Yup from "yup";
 
-const emptyOption = { value: "", label: "" };
-
 const formSchema = Yup.object().shape({
   inputSymbol: Yup.string().required("'I have' is required!"),
   outputSymbol: Yup.string().required("'I want' is required!"),

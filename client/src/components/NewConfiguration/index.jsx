@@ -1,21 +1,52 @@
-import React from "react";
+import axios from "axios";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import * as actions from "../../actions";
 import ConfigurationForm from "../ConfigurationForm";
-
-const NewConfiguration = ({
-  auth,
-  search,
-  createConfiguration,
+import {
+  defaultExchanges,
+  defaultInputSymbols,
+  defaultOutputSymbols,
+  defaultTradingPairs,
+  emptyOption,
+  extractExchanges,
+  extractTradingPairs,
   marketSearch,
-}) => {
+} from "../MarketSearch";
+
+const createConfiguration =
+  (token, formProps, callback) => async (dispatch) => {
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+
+    try {
+      await axios.post("/api/exchange-configurations", formProps, config);
+      callback();
+    } catch (e) {
+      return {
+        error: "Issue saving DCA configuration",
+      };
+    }
+  };
+
+const NewConfiguration = ({ auth }) => {
   let navigate = useNavigate();
+  const [inputSymbols, setInputSymbols] = useState(defaultInputSymbols);
+  const [outputSymbols, setOutputSymbols] = useState(defaultOutputSymbols);
+  const [tradingPairs, setTradingPairs] = useState(defaultTradingPairs);
+  const [exchanges, setExchanges] = useState(defaultExchanges);
 
   const onSubmit = (data) => {
     const formData = {
       ...data,
-      name: data.inputSymbol + " -> " + data.exchangeKey + " -> " + data.outputSymbol,
+      name:
+        data.inputSymbol +
+        " -> " +
+        data.exchangeKey +
+        " -> " +
+        data.outputSymbol,
     };
     createConfiguration(auth.authenticated, formData, () => {
       navigate("/");
@@ -24,7 +55,13 @@ const NewConfiguration = ({
 
   const onMarketSearch = (formProps) => {
     const token = auth.authenticated;
-    marketSearch(token, formProps);
+    marketSearch(token, formProps).then((data) => {
+      setTradingPairs([
+        emptyOption,
+        ...extractTradingPairs(data),
+      ]);
+      setExchanges([emptyOption, ...extractExchanges(data)]);
+    });
   };
 
   return (
@@ -42,10 +79,10 @@ const NewConfiguration = ({
             onSubmit={onSubmit}
             initalValues={{}}
             onMarketSearch={onMarketSearch}
-            inputSymbols={search.inputSymbols}
-            outputSymbols={search.outputSymbols}
-            tradingPairs={search.tradingPairs}
-            exchanges={search.exchanges}
+            inputSymbols={inputSymbols}
+            outputSymbols={outputSymbols}
+            tradingPairs={tradingPairs}
+            exchanges={exchanges}
           />
         </div>
       </main>
@@ -56,12 +93,6 @@ const NewConfiguration = ({
 function mapStateToProps(state) {
   return {
     auth: { authenticated: state.auth.authenticated },
-    search: {
-      inputSymbols: state.search.inputSymbols,
-      outputSymbols: state.search.outputSymbols,
-      tradingPairs: state.search.tradingPairs,
-      exchanges: state.search.exchanges,
-    },
   };
 }
 
