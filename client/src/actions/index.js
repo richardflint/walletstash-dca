@@ -1,15 +1,13 @@
 import axios from "axios";
 import {
-  AUTH_USER,
   AUTH_ERROR,
-  GET_CONFIGURATIONS,
-  SEARCH,
-  NEW_CONFIGURATION,
-  NEW_CONFIGURATION_ERROR,
+  AUTH_USER,
   DELETE_CONFIGURATION,
   DELETE_CONFIGURATION_ERROR,
-  GET_CONFIGURATION,
-  GET_CONFIGURATION_ERROR,
+  GET_CONFIGURATIONS,
+  NEW_CONFIGURATION,
+  NEW_CONFIGURATION_ERROR,
+  SEARCH
 } from "./types";
 
 export const login = (formProps, callback) => async (dispatch) => {
@@ -36,25 +34,6 @@ export const getConfigurations = (token) => async (dispatch) => {
 
   const response = await axios.get("/api/exchange-configurations", config);
   dispatch({ type: GET_CONFIGURATIONS, payload: response.data });
-};
-
-export const getConfiguration = (token, id) => async (dispatch) => {
-  const config = {
-    headers: { Authorization: `Bearer ${token}` },
-  };
-
-  try {
-    const response = await axios.get(
-      `/api/exchange-configurations/${id}`,
-      config
-    );
-    dispatch({ type: GET_CONFIGURATION, payload: response.data });
-  } catch (e) {
-    dispatch({
-      type: GET_CONFIGURATION_ERROR,
-      payload: "Issue getting DCA configuration",
-    });
-  }
 };
 
 export const marketSearch = (token, formProps) => async (dispatch) => {

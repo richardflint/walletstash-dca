@@ -119,7 +119,6 @@ function mapStateToProps(state) {
       tradingPairs: state.search.tradingPairs,
       exchanges: state.search.exchanges,
     },
-    configuration: state.configuration.configuration,
   };
 }
 
