@@ -15,8 +15,7 @@ import {
   marketSearch,
 } from "../MarketSearch";
 
-const createConfiguration =
-  (token, formProps, callback) => async (dispatch) => {
+const createConfiguration = async (token, formProps, callback) => {
     const config = {
       headers: { Authorization: `Bearer ${token}` },
     };
