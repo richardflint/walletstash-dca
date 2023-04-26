@@ -21,7 +21,7 @@ const ConfigurationsTable = ({ configurations = [], onDelete, onEdit }) => {
             Trading pair
           </td>
           <td className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-            Withdraw symbol
+            Withdrawal enabled
           </td>
           <td></td>
           <td></td>
@@ -46,7 +46,7 @@ const ConfigurationsTable = ({ configurations = [], onDelete, onEdit }) => {
               {configuration.tradingPair}
             </td>
             <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-              {configuration.withdrawalSymbol}
+              {configuration.withdrawalEnabled ? "Yes" : "No"}
             </td>
             <td>
               <button
