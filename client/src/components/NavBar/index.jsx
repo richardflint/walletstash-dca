@@ -11,7 +11,7 @@ const classNames = (...classes) => {
 }
 
 const navigation = [
-    {name: 'Configurations', href: '/', current: true},
+    {name: 'Configured DCAs', href: '/', current: true},
 ]
 
 const NavBar = (props) => {
