@@ -2,12 +2,12 @@ import React from "react";
 import { connect } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import * as actions from "../../actions";
-import NewConfigurationForm from "./NewConfigurationForm";
+import ConfigurationForm from "../ConfigurationForm";
 
 const NewConfiguration = ({
   auth,
   search,
-  saveConfiguration,
+  createConfiguration,
   marketSearch,
 }) => {
   let navigate = useNavigate();
@@ -15,9 +15,9 @@ const NewConfiguration = ({
   const onSubmit = (data) => {
     const formData = {
       ...data,
-      name: data.tradingPair + "/" + data.exchangeKey,
+      name: data.inputSymbol + " -> " + data.exchangeKey + " -> " + data.outputSymbol,
     };
-    saveConfiguration(auth.authenticated, formData, () => {
+    createConfiguration(auth.authenticated, formData, () => {
       navigate("/");
     });
   };
@@ -38,9 +38,10 @@ const NewConfiguration = ({
       </header>
       <main>
         <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-          <NewConfigurationForm
-            onMarketSearch={onMarketSearch}
+          <ConfigurationForm
             onSubmit={onSubmit}
+            initalValues={{}}
+            onMarketSearch={onMarketSearch}
             inputSymbols={search.inputSymbols}
             outputSymbols={search.outputSymbols}
             tradingPairs={search.tradingPairs}

@@ -66,19 +66,21 @@ export const marketSearch = (token, formProps) => async (dispatch) => {
 
   let params = "";
 
-  if (formProps.inputSymbol.value) {
-    params = params.concat(`inputSymbol=${formProps.inputSymbol.value}`);
-    performSearch = true;
-  }
+  if (formProps) {
+    if (formProps.inputSymbol) {
+      params = params.concat(`inputSymbol=${formProps.inputSymbol}`);
+      performSearch = true;
+    }
 
-  if (formProps.outputSymbol.value) {
-    params = params.concat(`&outputSymbol=${formProps.outputSymbol.value}`);
-    performSearch = true;
-  }
+    if (formProps.outputSymbol) {
+      params = params.concat(`&outputSymbol=${formProps.outputSymbol}`);
+      performSearch = true;
+    }
 
-  if (formProps.tradingPair.value) {
-    params = params.concat(`&marketSymbol=${formProps.tradingPair.value}`);
-    performSearch = true;
+    if (formProps.tradingPair) {
+      params = params.concat(`&marketSymbol=${formProps.tradingPair}`);
+      performSearch = true;
+    }
   }
 
   if (performSearch) {
@@ -87,7 +89,7 @@ export const marketSearch = (token, formProps) => async (dispatch) => {
   }
 };
 
-export const saveConfiguration =
+export const createConfiguration =
   (token, formProps, callback) => async (dispatch) => {
     const config = {
       headers: { Authorization: `Bearer ${token}` },
@@ -96,6 +98,31 @@ export const saveConfiguration =
     try {
       const response = await axios.post(
         "/api/exchange-configurations",
+        formProps,
+        config
+      );
+      dispatch({
+        type: NEW_CONFIGURATION,
+        payload: response.data.access_token,
+      });
+      callback();
+    } catch (e) {
+      dispatch({
+        type: NEW_CONFIGURATION_ERROR,
+        payload: "Issue saving DCA configuration",
+      });
+    }
+  };
+
+export const updateConfiguration =
+  (token, id, formProps, callback) => async (dispatch) => {
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+
+    try {
+      const response = await axios.put(
+        `/api/exchange-configurations/${id}`,
         formProps,
         config
       );

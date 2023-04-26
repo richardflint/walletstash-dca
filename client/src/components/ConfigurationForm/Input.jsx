@@ -13,7 +13,7 @@ const Input = (props) => {
         disabled={props.isDisabled}
         className={props.className}
       />
-      {!!props.error && props.touched && (
+      {!!props.error && !!props.touched && (
         <div style={{ color: "red", marginTop: ".5rem" }}>
           {Object.values(props.error)}
         </div>

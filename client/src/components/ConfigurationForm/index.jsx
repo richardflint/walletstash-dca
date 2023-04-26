@@ -1,38 +1,51 @@
-import { withFormik } from "formik";
-import React from "react";
-import * as Yup from "yup";
-import SearchSelect from "./SearchSelect";
+import React, { useState, useEffect } from "react";
 import Input from "./Input";
+import SearchSelect from "./SearchSelect";
+import * as Yup from "yup";
 
 const emptyOption = { value: "", label: "" };
 
-const formikEnhancer = withFormik({
-  validationSchema: Yup.object().shape({
-    inputSymbol: Yup.object().shape({
-      label: Yup.string(),
-      value: Yup.string().required("inputSymbol is required!"),
-    }),
-    outputSymbol: Yup.object().shape({
-      label: Yup.string(),
-      value: Yup.string().required("outputSymbol is required!"),
-    }),
-    tradingPair: Yup.object().shape({
-      label: Yup.string(),
-      value: Yup.string().required("tradingPair is required!"),
-    }),
-    exchange: Yup.object().shape({
-      label: Yup.string(),
-      value: Yup.string().required("exchange is required!"),
-    }),
-    apiUsername: Yup.string().required("apiUsername is required!"),
-    apiKey: Yup.string().required("apiKey is required!"),
-    secretKey: Yup.string().required("secretKey is required!"),
+const formSchema = Yup.object().shape({
+  inputSymbol: Yup.string().required("'I have' is required!"),
+  outputSymbol: Yup.string().required("'I want' is required!"),
+  tradingPair: Yup.string().required("Trading Pair is required!"),
+  exchangeKey: Yup.string().required("Exchange is required!"),
+  apiUsername: Yup.string().required("Api Username is required!"),
+  apiKey: Yup.string().required("Api Key is required!"),
+  secretKey: Yup.string().required("Api Secret is required!"),
+  customTradingThreshold: Yup.number(),
+  customTradingParams: Yup.string(),
+  withdrawalEnabled: Yup.boolean(),
+  withdrawalSymbol: Yup.string().when("withdrawalEnabled", {
+    is: true,
+    then: (schema) => schema.required("Withdrawal Symbol is required!"),
   }),
-  mapPropsToValues: (props) => ({
-    inputSymbol: emptyOption,
-    outputSymbol: emptyOption,
-    tradingPair: emptyOption,
-    exchange: emptyOption,
+  withdrawalAddress: Yup.string().when("withdrawalEnabled", {
+    is: true,
+    then: (schema) => schema.required("Withdrawal Address is required!"),
+  }),
+  withdrawalTag: Yup.string().when("withdrawalEnabled", {
+    is: true,
+    then: (schema) => schema.required("Withdrawal Tag is required!"),
+  }),
+  customWithdrawThreshold: Yup.number(),
+  customWithdrawParams: Yup.string(),
+});
+
+const Form = ({
+  initalValues,
+  onMarketSearch,
+  inputSymbols,
+  outputSymbols,
+  tradingPairs,
+  exchanges,
+  onSubmit,
+}) => {
+  const [values, setValues] = useState({
+    inputSymbol: "",
+    outputSymbol: "",
+    tradingPair: "",
+    exchangeKey: "",
     apiUsername: "",
     apiKey: "",
     secretKey: "",
@@ -44,50 +57,69 @@ const formikEnhancer = withFormik({
     withdrawalTag: "",
     customWithdrawThreshold: 0,
     customWithdrawParams: "",
-  }),
-  handleSubmit: (values, {setSubmitting, props: {onSubmit}}) => {
-    const payload = {
-      inputSymbol: values.inputSymbol.value,
-      outputSymbol: values.outputSymbol.value,
-      tradingPair: values.tradingPair.value,
-      exchangeKey: values.exchange.value,
-      apiUsername: values.apiUsername,
-      apiKey: values.apiKey,
-      secretKey: values.secretKey,
-      customTradingThreshold: values.customTradingThreshold,
-      customTradingParams: values.customTradingParams,
-      withdrawalEnabled: values.withdrawalEnabled,
-      withdrawalSymbol: values.withdrawalSymbol,
-      withdrawalAddress: values.withdrawalAddress,
-      withdrawalTag: values.withdrawalTag,
-      customWithdrawThreshold: values.customWithdrawThreshold,
-      customWithdrawParams: values.customWithdrawParams,
-    };
-    onSubmit(payload);
-    setSubmitting(false);
-  },
-  displayName: "NewConfigurationForm",
-});
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
 
-const Form = ({
-  values,
-  touched,
-  dirty,
-  errors,
-  handleChange,
-  handleBlur,
-  handleSubmit,
-  handleReset,
-  setFieldValue,
-  setFieldTouched,
-  isSubmitting,
-  onMarketSearch,
-  onSubmit,
-  inputSymbols,
-  outputSymbols,
-  tradingPairs,
-  exchanges,
-}) => {
+  useEffect(() => {
+    setValues({ ...values, ...initalValues });
+  }, [initalValues]);
+
+  const handleChange = (event) => {
+    const value = event.target.value;
+    const name = event.target.name;
+    setValues({ ...values, [name]: value });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    try {
+      let tempTouched = {};
+      for (const key in values) {
+        tempTouched = { ...tempTouched, [key]: true };
+      }
+      setTouched({ ...touched, ...tempTouched });
+      await formSchema.validate(values, { abortEarly: false });
+      onSubmit(values);
+    } catch (error) {
+      let collectedErrors = {};
+      error.inner.forEach((error) => {
+        collectedErrors = {
+          ...collectedErrors,
+          [error.path]: error.message,
+        };
+      });
+      setErrors({ ...errors, ...collectedErrors });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleBlur = (event) => {
+    const name = event.target.name;
+    setTouched({ ...touched, [name]: true });
+
+    try {
+      formSchema.validateSyncAt(name, values);
+      setErrors({ ...errors, [name]: "" });
+    } catch (error) {
+      setErrors({ ...errors, [name]: error.message });
+    }
+  };
+
+  const handleSelectBlur = (name) => {
+    setTouched({ ...touched, [name]: true });
+
+    try {
+      formSchema.validateSyncAt(name, values);
+      setErrors({ ...errors, [name]: "" });
+    } catch (error) {
+      setErrors({ ...errors, [name]: error.message });
+    }
+  };
+
   return (
     <>
       <div className="md:grid md:grid-cols-3 md:gap-6">
@@ -107,15 +139,24 @@ const Form = ({
                       name="inputSymbol"
                       options={inputSymbols}
                       value={values.inputSymbol}
-                      onChange={(field, value) => {
-                        setFieldValue(field, value);
-                        onMarketSearch({ ...values, inputSymbol: value });
-                        setFieldValue("outputSymbol", emptyOption);
-                        setFieldValue("tradingPair", emptyOption);
-                        setFieldValue("exchange", emptyOption);
-                      }}
-                      onBlur={setFieldTouched}
                       error={errors.inputSymbol}
+                      onChange={(field, value) => {
+                        setValues({
+                          ...values,
+                          exchangeKey: "",
+                          tradingPair: "",
+                          outputSymbol: "",
+                          inputSymbol: value.value,
+                        });
+                        onMarketSearch({
+                          ...values,
+                          inputSymbol: value.value,
+                          outputSymbol: "",
+                          tradingPair: "",
+                          exchangeKey: "",
+                        });
+                      }}
+                      onBlur={handleSelectBlur}
                       touched={touched.inputSymbol}
                       className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     />
@@ -129,17 +170,25 @@ const Form = ({
                     </label>
                     <SearchSelect
                       name="outputSymbol"
-                      isDisabled={!values.inputSymbol.value}
+                      isDisabled={!values.inputSymbol}
                       options={outputSymbols}
                       value={values.outputSymbol}
-                      onChange={(field, value) => {
-                        setFieldValue(field, value);
-                        onMarketSearch({ ...values, outputSymbol: value });
-                        setFieldValue("tradingPair", emptyOption);
-                        setFieldValue("exchange", emptyOption);
-                      }}
-                      onBlur={setFieldTouched}
                       error={errors.outputSymbol}
+                      onChange={(field, value) => {
+                        setValues({
+                          ...values,
+                          exchangeKey: "",
+                          tradingPair: "",
+                          outputSymbol: value.value,
+                        });
+                        onMarketSearch({
+                          ...values,
+                          outputSymbol: value.value,
+                          tradingPair: "",
+                          exchangeKey: "",
+                        });
+                      }}
+                      onBlur={handleSelectBlur}
                       touched={touched.outputSymbol}
                       className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     />
@@ -153,16 +202,23 @@ const Form = ({
                     </label>
                     <SearchSelect
                       name="tradingPair"
-                      isDisabled={!values.outputSymbol.value}
+                      isDisabled={!values.outputSymbol}
                       options={tradingPairs}
                       value={values.tradingPair}
-                      onChange={(field, value) => {
-                        setFieldValue(field, value);
-                        onMarketSearch({ ...values, tradingPair: value });
-                        setFieldValue("exchange", emptyOption);
-                      }}
-                      onBlur={setFieldTouched}
                       error={errors.tradingPair}
+                      onChange={(field, value) => {
+                        setValues({
+                          ...values,
+                          exchangeKey: "",
+                          tradingPair: value.value,
+                        });
+                        onMarketSearch({
+                          ...values,
+                          tradingPair: value.value,
+                          exchangeKey: "",
+                        });
+                      }}
+                      onBlur={handleSelectBlur}
                       touched={touched.tradingPair}
                       className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     />
@@ -172,17 +228,22 @@ const Form = ({
                       htmlFor="exchangeKey"
                       className="block text-sm font-medium text-gray-700"
                     >
-                      Exchange Key
+                      Exchange
                     </label>
                     <SearchSelect
-                      name="exchange"
-                      isDisabled={!values.tradingPair.value}
+                      name="exchangeKey"
+                      isDisabled={!values.tradingPair}
                       options={exchanges}
-                      value={values.exchange}
-                      onChange={setFieldValue}
-                      onBlur={setFieldTouched}
-                      error={errors.exchange}
-                      touched={touched.exchange}
+                      value={values.exchangeKey}
+                      error={errors.exchangeKey}
+                      onChange={(field, value) => {
+                        setValues({
+                          ...values,
+                          exchangeKey: value.value,
+                        });
+                      }}
+                      onBlur={handleSelectBlur}
+                      touched={touched.exchangeKey}
                       className="mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     />
                   </div>
@@ -200,7 +261,7 @@ const Form = ({
                       onChange={handleChange}
                       onBlur={handleBlur}
                       error={errors.apiUsername}
-                      touched={touched.exchange}
+                      touched={touched.apiUsername}
                       className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     />
                   </div>
@@ -246,11 +307,10 @@ const Form = ({
                       Trading Threshold
                     </label>
                     <Input
-                      name="secretKey"
+                      name="customTradingThreshold"
                       value={values.customTradingThreshold}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      error={errors.customTradingThreshold}
                       touched={touched.customTradingThreshold}
                       className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     />
@@ -287,10 +347,14 @@ const Form = ({
                           <div className="flex h-5 items-center">
                             <input
                               name="withdrawalEnabled"
-                              value={values.withdrawalEnabled}
-                              onChange={handleChange}
-                              onBlur={handleBlur}
+                              onChange={() => {
+                                setValues({
+                                  ...values,
+                                  withdrawalEnabled: !values.withdrawalEnabled,
+                                });
+                              }}
                               type="checkbox"
+                              checked={!!values.withdrawalEnabled}
                               className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                             />
                           </div>
@@ -422,6 +486,4 @@ const Form = ({
   );
 };
 
-const NewConfigurationForm = formikEnhancer(Form);
-
-export default NewConfigurationForm;
+export default Form;

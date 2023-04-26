@@ -26,7 +26,7 @@ class SearchSelect extends React.Component {
             options={this.props.options}
             onChange={this.handleChange}
             onBlur={this.handleBlur}
-            value={this.props.value}
+            value={this.props.options.find(item => item.value === this.props.value)}
             isDisabled={this.props.isDisabled}
           />
           {!!this.props.error && this.props.touched && (
