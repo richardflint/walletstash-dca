@@ -33,11 +33,7 @@ const updateConfiguration = async (token, id, formProps, callback) => {
   };
 
   try {
-    await axios.put(
-      `/api/exchange-configurations/${id}`,
-      formProps,
-      config
-    );
+    await axios.put(`/api/exchange-configurations/${id}`, formProps, config);
     callback();
   } catch (e) {
     return { error: "Issue saving DCA configuration" };
@@ -60,7 +56,12 @@ const EditConfiguration = ({ auth }) => {
   }, [id, auth.authenticated]);
 
   useEffect(() => {
-    marketSearch(auth.authenticated, configuration);
+    if (configuration) {
+      marketSearch(auth.authenticated, configuration).then((data) => {
+        setTradingPairs([emptyOption, ...extractTradingPairs(data)]);
+        setExchanges([emptyOption, ...extractExchanges(data)]);
+      });
+    }
   }, [auth.authenticated, configuration]);
 
   const onSubmit = (data) => {
@@ -81,10 +82,7 @@ const EditConfiguration = ({ auth }) => {
   const onMarketSearch = (formProps) => {
     const token = auth.authenticated;
     marketSearch(token, formProps).then((data) => {
-      setTradingPairs([
-        emptyOption,
-        ...extractTradingPairs(data),
-      ]);
+      setTradingPairs([emptyOption, ...extractTradingPairs(data)]);
       setExchanges([emptyOption, ...extractExchanges(data)]);
     });
   };
