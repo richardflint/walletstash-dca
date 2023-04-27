@@ -64,12 +64,20 @@ export class ExchangesService {
       }
     }
 
-    return this.exchangeMarketRepository.find({
-      where: [...where],
-      order: {
-        id: 'DESC',
-      },
-    });
+    if (where.length > 0) {
+      return this.exchangeMarketRepository.find({
+        where: [...where],
+        order: {
+          id: 'DESC',
+        },
+      });
+    } else {
+      return this.exchangeMarketRepository.find({
+        order: {
+          id: 'DESC',
+        },
+      });
+    }
   }
 
   private async fetchAllMarkets(): Promise<void> {
