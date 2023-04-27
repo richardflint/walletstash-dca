@@ -4,7 +4,12 @@ import { useNavigate } from "react-router-dom";
 import ConfigurationsTable from "./ConfigurationsTable";
 import * as actions from "../../actions";
 
-const Dashboard = ({ auth, configurations, getConfigurations, deleteConfiguration }) => {
+const Dashboard = ({
+  auth,
+  configurations,
+  getConfigurations,
+  deleteConfiguration,
+}) => {
   let navigate = useNavigate();
 
   useEffect(() => {
@@ -28,7 +33,7 @@ const Dashboard = ({ auth, configurations, getConfigurations, deleteConfiguratio
       <header className="bg-white shadow">
         <div className="mx-auto max-w-7xl py-6 px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-            Configured DCAs
+            DCA configurations
           </h1>
         </div>
       </header>
@@ -41,7 +46,11 @@ const Dashboard = ({ auth, configurations, getConfigurations, deleteConfiguratio
             </>
           ) : (
             <>
-              <ConfigurationsTable configurations={configurations.existing} onDelete={onDelete} onEdit={onEdit}/>
+              <ConfigurationsTable
+                configurations={configurations.existing}
+                onDelete={onDelete}
+                onEdit={onEdit}
+              />
             </>
           )}
           <>
