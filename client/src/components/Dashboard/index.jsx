@@ -38,7 +38,7 @@ const Dashboard = ({
         </div>
       </header>
       <main>
-        <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8 overflow-auto">
           {!configurations.existing || configurations.existing.length === 0 ? (
             <>
               <p data-testid="no-configurations-message">No Configured DCAs</p>{" "}
