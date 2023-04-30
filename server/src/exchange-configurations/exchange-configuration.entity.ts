@@ -1,5 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-import { ExchangeConfigurationDto } from './dto/exchange-configuration.dto';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { ExchangeConfigurationRequest } from './dto/exchange-configuration-request';
 
 @Entity()
 export class ExchangeConfiguration {
@@ -39,7 +39,7 @@ export class ExchangeConfiguration {
   withdrawalThreshold: number;
 
   mapTo(
-    exchangeConfiguration: ExchangeConfigurationDto,
+    exchangeConfiguration: ExchangeConfigurationRequest,
   ): ExchangeConfiguration {
     this.name = exchangeConfiguration.name;
     this.exchangeKey = exchangeConfiguration.exchangeKey;
