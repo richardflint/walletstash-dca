@@ -68,6 +68,7 @@ const Form = ({
     const value = event.target.value;
     const name = event.target.name;
     setValues({ ...values, [name]: value });
+    handleError(name, { ...values, [name]: value });
   };
 
   const handleSubmit = async (event) => {
@@ -98,7 +99,14 @@ const Form = ({
   const handleBlur = (event) => {
     const name = event.target.name;
     setTouched({ ...touched, [name]: true });
+    handleErrorValue(name);
+  };
 
+  const handleSelectBlur = (name) => {
+    setTouched({ ...touched, [name]: true });
+  };
+
+  const handleError = (name, values) => {
     try {
       formSchema.validateSyncAt(name, values);
       setErrors({ ...errors, [name]: "" });
@@ -107,15 +115,8 @@ const Form = ({
     }
   };
 
-  const handleSelectBlur = (name) => {
-    setTouched({ ...touched, [name]: true });
-
-    try {
-      formSchema.validateSyncAt(name, values);
-      setErrors({ ...errors, [name]: "" });
-    } catch (error) {
-      setErrors({ ...errors, [name]: error.message });
-    }
+  const handleErrorValue = (name) => {
+    handleError(name, { [name]: values[name] });
   };
 
   return (
@@ -153,6 +154,9 @@ const Form = ({
                           tradingPair: "",
                           exchangeKey: "",
                         });
+                        handleError(field, {
+                          inputSymbol: value.value,
+                        });
                       }}
                       onBlur={handleSelectBlur}
                       touched={touched.inputSymbol}
@@ -185,6 +189,9 @@ const Form = ({
                           tradingPair: "",
                           exchangeKey: "",
                         });
+                        handleError(field, {
+                          outputSymbol: value.value,
+                        });
                       }}
                       onBlur={handleSelectBlur}
                       touched={touched.outputSymbol}
@@ -215,6 +222,9 @@ const Form = ({
                           tradingPair: value.value,
                           exchangeKey: "",
                         });
+                        handleError(field, {
+                          tradingPair: value.value,
+                        });
                       }}
                       onBlur={handleSelectBlur}
                       touched={touched.tradingPair}
@@ -237,6 +247,9 @@ const Form = ({
                       onChange={(field, value) => {
                         setValues({
                           ...values,
+                          exchangeKey: value.value,
+                        });
+                        handleError(field, {
                           exchangeKey: value.value,
                         });
                       }}
