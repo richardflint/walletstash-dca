@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { ExchangeConfigurationRequest } from './dto/exchange-configuration-request';
 import { ExchangeConfiguration } from './exchange-configuration.entity';
-import { ExchangeConfigurationDto } from './dto/exchange-configuration.dto';
 
 @Injectable()
 export class ExchangeConfigurationsService {
@@ -20,20 +20,23 @@ export class ExchangeConfigurationsService {
   }
 
   async create(
-    exchangeConfiguration: ExchangeConfigurationDto,
+    exchangeConfiguration: ExchangeConfigurationRequest,
   ): Promise<ExchangeConfiguration> {
-    return this.exchangeConfigurationRepository.save(exchangeConfiguration);
+    const newConfiguration = {
+      ...exchangeConfiguration,
+    } as ExchangeConfiguration;
+    return this.exchangeConfigurationRepository.save(newConfiguration);
   }
 
   async update(
     id: number,
-    exchangeConfiguration: ExchangeConfigurationDto,
+    exchangeConfiguration: ExchangeConfigurationRequest,
   ): Promise<ExchangeConfiguration> {
     const foundExchange = await this.exchangeConfigurationRepository.findOneBy({
       id,
     });
 
-    if(foundExchange == null) {
+    if (foundExchange == null) {
       return null;
     }
 
@@ -47,7 +50,7 @@ export class ExchangeConfigurationsService {
       id,
     });
 
-    if(foundExchange == null) {
+    if (foundExchange == null) {
       return null;
     }
 

@@ -1,6 +1,5 @@
-import { Column } from 'typeorm';
-
-export class ExchangeConfigurationDto {
+export class ExchangeConfigurationResponse {
+  id: number;
   name: string;
   exchangeKey: string;
   apiUsername: string;
