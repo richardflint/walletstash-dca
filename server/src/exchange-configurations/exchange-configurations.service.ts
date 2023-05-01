@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Conversion } from './conversion.entity';
 import { ExchangeConfigurationRequest } from './dto/exchange-configuration-request';
 import { ExchangeConfiguration } from './exchange-configuration.entity';
 
@@ -9,6 +10,8 @@ export class ExchangeConfigurationsService {
   constructor(
     @InjectRepository(ExchangeConfiguration)
     private exchangeConfigurationRepository: Repository<ExchangeConfiguration>,
+    @InjectRepository(Conversion)
+    private conversionRepository: Repository<Conversion>,
   ) {}
 
   async findAll(): Promise<ExchangeConfiguration[]> {
@@ -55,5 +58,35 @@ export class ExchangeConfigurationsService {
     }
 
     await this.exchangeConfigurationRepository.delete(id);
+  }
+
+  async addConversion(
+    configurationId: number,
+    datetime: Date,
+    externalId: string,
+    symbol: string,
+    amount: number,
+  ): Promise<void> {
+    const configuration = await this.exchangeConfigurationRepository.findOneBy({
+      id: configurationId,
+    });
+
+    if (configuration) {
+      const conversion = {
+        datetime,
+        externalId,
+        symbol,
+        amount,
+        configuration,
+      } as Conversion;
+
+      if (configuration.conversions) {
+        configuration.conversions.push(conversion);
+      } else {
+        configuration.conversions = [conversion];
+      }
+      await this.conversionRepository.save(conversion);
+      await this.exchangeConfigurationRepository.save(configuration);
+    }
   }
 }
