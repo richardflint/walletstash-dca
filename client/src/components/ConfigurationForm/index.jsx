@@ -11,7 +11,7 @@ const formSchema = Yup.object().shape({
   apiUsername: Yup.string().required("Api Username is required!"),
   apiKey: Yup.string().required("Api Key is required!"),
   secretKey: Yup.string().required("Api Secret is required!"),
-  customTradingThreshold: Yup.number(),
+  tradingThreshold: Yup.number(),
   customTradingParams: Yup.string(),
   withdrawalEnabled: Yup.boolean(),
   withdrawalSymbol: Yup.string().when("withdrawalEnabled", {
@@ -26,7 +26,7 @@ const formSchema = Yup.object().shape({
     is: true,
     then: (schema) => schema.required("Withdrawal Tag is required!"),
   }),
-  customWithdrawThreshold: Yup.number(),
+  withdrawalThreshold: Yup.number(),
   customWithdrawParams: Yup.string(),
 });
 
@@ -47,13 +47,13 @@ const Form = ({
     apiUsername: "",
     apiKey: "",
     secretKey: "",
-    customTradingThreshold: 0,
+    tradingThreshold: 0,
     customTradingParams: "",
     withdrawalEnabled: false,
     withdrawalSymbol: "",
     withdrawalAddress: "",
     withdrawalTag: "",
-    customWithdrawThreshold: 0,
+    withdrawalThreshold: 0,
     customWithdrawParams: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -312,17 +312,17 @@ const Form = ({
                   </div>
                   <div className="col-span-6">
                     <label
-                      htmlFor="customTradingThreshold"
+                      htmlFor="tradingThreshold"
                       className="block text-sm font-medium text-gray-700"
                     >
                       Trading Threshold
                     </label>
                     <Input
-                      name="customTradingThreshold"
-                      value={values.customTradingThreshold}
+                      name="tradingThreshold"
+                      value={values.tradingThreshold}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      touched={touched.customTradingThreshold}
+                      touched={touched.tradingThreshold}
                       className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                     />
                   </div>
@@ -443,18 +443,18 @@ const Form = ({
 
                       <div className="col-span-6">
                         <label
-                          htmlFor="customWithdrawThreshold"
+                          htmlFor="withdrawalThreshold"
                           className="block text-sm font-medium text-gray-700"
                         >
                           Withdrawal Threshold
                         </label>
                         <Input
-                          name="customWithdrawThreshold"
-                          value={values.customWithdrawThreshold}
+                          name="withdrawalThreshold"
+                          value={values.withdrawalThreshold}
                           onChange={handleChange}
                           onBlur={handleBlur}
-                          error={errors.customWithdrawThreshold}
-                          touched={touched.customWithdrawThreshold}
+                          error={errors.withdrawalThreshold}
+                          touched={touched.withdrawalThreshold}
                           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
                         />
                       </div>
