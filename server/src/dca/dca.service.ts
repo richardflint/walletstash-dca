@@ -60,6 +60,7 @@ export class DcaService {
             `Balance for ${configuration.outputSymbol} is ${outputBalance}`,
           );
           if (
+            configuration.withdrawalEnabled &&
             !hasPendingWithdrawals &&
             outputBalance > 0 &&
             outputBalance > configuration.withdrawalThreshold
