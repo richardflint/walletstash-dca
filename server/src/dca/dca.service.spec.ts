@@ -29,6 +29,7 @@ describe('DcaService', () => {
       customTradingParams: '{}',
       outputSymbol: 'BTC',
       tradingPair: 'BTC/GBP',
+      withdrawalEnabled: true,
     } as ExchangeConfiguration;
 
     const result: Promise<ExchangeConfiguration[]> = Promise.resolve([
@@ -62,6 +63,7 @@ describe('DcaService', () => {
       outputSymbol: 'BTC',
       tradingPair: 'BTC/GBP',
       tradingThreshold: 0,
+      withdrawalEnabled: true,
     } as ExchangeConfiguration;
 
     const result: Promise<ExchangeConfiguration[]> = Promise.resolve([
@@ -101,6 +103,7 @@ describe('DcaService', () => {
       customTradingParams: '{}',
       outputSymbol: 'BTC',
       tradingPair: 'BTC/GBP',
+      withdrawalEnabled: true,
     } as ExchangeConfiguration;
 
     const result: Promise<ExchangeConfiguration[]> = Promise.resolve([
@@ -138,6 +141,7 @@ describe('DcaService', () => {
       customTradingParams: '{}',
       outputSymbol: 'BTC',
       tradingPair: 'BTC/GBP',
+      withdrawalEnabled: true,
     } as ExchangeConfiguration;
 
     const result: Promise<ExchangeConfiguration[]> = Promise.resolve([
@@ -177,6 +181,7 @@ describe('DcaService', () => {
       tradingPair: 'BTC/GBP',
       tradingThreshold: 0,
       withdrawalThreshold: 0,
+      withdrawalEnabled: true,
     } as ExchangeConfiguration;
 
     const result: Promise<ExchangeConfiguration[]> = Promise.resolve([
@@ -212,6 +217,46 @@ describe('DcaService', () => {
       tradingPair: 'BTC/GBP',
       tradingThreshold: 0,
       withdrawalThreshold: 0,
+      withdrawalEnabled: true,
     });
+  });
+
+  test('should not withdraw when withdrawal disabled', async () => {
+    const configuration = {
+      id: 1,
+      apiKey: 'apiKey',
+      exchangeKey: 'testKey',
+      secretKey: 'secretKey',
+      inputSymbol: 'GBP',
+      customTradingParams: '{}',
+      outputSymbol: 'BTC',
+      tradingPair: 'BTC/GBP',
+      withdrawalEnabled: false,
+      withdrawalThreshold: 0,
+    } as ExchangeConfiguration;
+
+    const result: Promise<ExchangeConfiguration[]> = Promise.resolve([
+      configuration,
+    ]);
+    jest
+      .spyOn(exchangeConfigurationsService, 'findAll')
+      .mockImplementation(() => result);
+
+    const mockExchange = createMock<Exchange>({
+      fetchBalance: (symbol: string) => {
+        return symbol == 'BTC' ? Promise.resolve(1) : null;
+      },
+      hasPendingWithdrawals: (symbol: string) => {
+        return symbol == 'BTC' ? Promise.resolve(false) : null;
+      },
+    });
+
+    jest
+      .spyOn(ExchangeFactory, 'create')
+      .mockImplementation(() => mockExchange);
+
+    await service.performDca();
+
+    expect(mockExchange.performWithdrawal).not.toHaveBeenCalled();
   });
 });
