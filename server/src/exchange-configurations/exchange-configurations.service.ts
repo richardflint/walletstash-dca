@@ -15,11 +15,22 @@ export class ExchangeConfigurationsService {
   ) {}
 
   async findAll(): Promise<ExchangeConfiguration[]> {
-    return this.exchangeConfigurationRepository.find();
+    return this.exchangeConfigurationRepository.find({
+      relations: {
+        conversions: true,
+      },
+    });
   }
 
   async findOne(id: number): Promise<ExchangeConfiguration | undefined> {
-    return this.exchangeConfigurationRepository.findOneBy({ id });
+    return this.exchangeConfigurationRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        conversions: true,
+      },
+    });
   }
 
   async create(

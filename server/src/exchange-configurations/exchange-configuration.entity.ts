@@ -62,4 +62,13 @@ export class ExchangeConfiguration {
     this.withdrawalThreshold = exchangeConfiguration.withdrawalThreshold;
     return this;
   }
+
+  public get getLatestConversion(): Conversion {
+    return this.conversions
+      ?.sort(
+        (a: Conversion, b: Conversion) =>
+          b.datetime.getTime() - a.datetime.getTime(),
+      )
+      .shift();
+  }
 }

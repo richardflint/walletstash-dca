@@ -10,7 +10,10 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ExchangeConfigurationRequest } from './dto/exchange-configuration-request';
-import { ExchangeConfigurationResponse } from './dto/exchange-configuration-response';
+import {
+  ConversionResponse,
+  ExchangeConfigurationResponse,
+} from './dto/exchange-configuration-response';
 import { ExchangeConfigurationsService } from './exchange-configurations.service';
 
 @Controller('exchange-configurations')
@@ -27,7 +30,12 @@ export class ExchangeConfigurationsController {
     const configuration = await this.exchangeConfigurationsService.create(
       exchangeConfiguration,
     );
-    return { ...configuration } as ExchangeConfigurationResponse;
+    return {
+      ...configuration,
+      latestConversion: {
+        ...configuration.getLatestConversion,
+      } as ConversionResponse,
+    } as ExchangeConfigurationResponse;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -37,7 +45,12 @@ export class ExchangeConfigurationsController {
       await this.exchangeConfigurationsService.findAll()
     ).map(
       (configuration) =>
-        ({ ...configuration } as ExchangeConfigurationResponse),
+        ({
+          ...configuration,
+          latestConversion: {
+            ...configuration.getLatestConversion,
+          } as ConversionResponse,
+        } as ExchangeConfigurationResponse),
     );
   }
 
@@ -47,7 +60,13 @@ export class ExchangeConfigurationsController {
     @Param('id') id: number,
   ): Promise<ExchangeConfigurationResponse> {
     const configuration = await this.exchangeConfigurationsService.findOne(id);
-    return { ...configuration } as ExchangeConfigurationResponse;
+    console.log(configuration.conversions);
+    return {
+      ...configuration,
+      latestConversion: {
+        ...configuration.getLatestConversion,
+      } as ConversionResponse,
+    } as ExchangeConfigurationResponse;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -60,7 +79,12 @@ export class ExchangeConfigurationsController {
       id,
       exchangeConfiguration,
     );
-    return { ...configuration } as ExchangeConfigurationResponse;
+    return {
+      ...configuration,
+      latestConversion: {
+        ...configuration.getLatestConversion,
+      } as ConversionResponse,
+    } as ExchangeConfigurationResponse;
   }
 
   @UseGuards(JwtAuthGuard)
