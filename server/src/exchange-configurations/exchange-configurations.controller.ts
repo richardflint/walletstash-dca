@@ -8,9 +8,13 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { ExchangeConfigurationsService } from './exchange-configurations.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ExchangeConfiguration } from './exchange-configuration.entity';
+import { ExchangeConfigurationRequest } from './dto/exchange-configuration-request';
+import {
+  ConversionResponse,
+  ExchangeConfigurationResponse,
+} from './dto/exchange-configuration-response';
+import { ExchangeConfigurationsService } from './exchange-configurations.service';
 
 @Controller('exchange-configurations')
 export class ExchangeConfigurationsController {
@@ -20,34 +24,72 @@ export class ExchangeConfigurationsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() exchangeConfiguration: ExchangeConfiguration) {
-    return this.exchangeConfigurationsService.create(exchangeConfiguration);
+  async create(
+    @Body() exchangeConfiguration: ExchangeConfigurationRequest,
+  ): Promise<ExchangeConfigurationResponse> {
+    const configuration = await this.exchangeConfigurationsService.create(
+      exchangeConfiguration,
+    );
+    return {
+      ...configuration,
+      latestConversion: {
+        ...configuration.getLatestConversion,
+      } as ConversionResponse,
+    } as ExchangeConfigurationResponse;
   }
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll(): Promise<ExchangeConfiguration[]> {
-    return this.exchangeConfigurationsService.findAll();
+  async findAll(): Promise<ExchangeConfigurationResponse[]> {
+    return await (
+      await this.exchangeConfigurationsService.findAll()
+    ).map(
+      (configuration) =>
+        ({
+          ...configuration,
+          latestConversion: {
+            ...configuration.getLatestConversion,
+          } as ConversionResponse,
+        } as ExchangeConfigurationResponse),
+    );
   }
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: number): Promise<ExchangeConfiguration> {
-    return this.exchangeConfigurationsService.findOne(id);
+  async findOne(
+    @Param('id') id: number,
+  ): Promise<ExchangeConfigurationResponse> {
+    const configuration = await this.exchangeConfigurationsService.findOne(id);
+    console.log(configuration.conversions);
+    return {
+      ...configuration,
+      latestConversion: {
+        ...configuration.getLatestConversion,
+      } as ConversionResponse,
+    } as ExchangeConfigurationResponse;
   }
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: number,
-    @Body() exchangeConfiguration: ExchangeConfiguration,
-  ) {
-    return this.exchangeConfigurationsService.update(id, exchangeConfiguration);
+    @Body() exchangeConfiguration: ExchangeConfigurationRequest,
+  ): Promise<ExchangeConfigurationResponse> {
+    const configuration = await this.exchangeConfigurationsService.update(
+      id,
+      exchangeConfiguration,
+    );
+    return {
+      ...configuration,
+      latestConversion: {
+        ...configuration.getLatestConversion,
+      } as ConversionResponse,
+    } as ExchangeConfigurationResponse;
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: number) {
+  async remove(@Param('id') id: number) {
     return this.exchangeConfigurationsService.remove(id);
   }
 }

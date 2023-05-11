@@ -1,4 +1,5 @@
 import React from "react";
+import { format } from 'date-fns'
 
 const ConfigurationsTable = ({ configurations = [], onDelete, onEdit }) => {
   return (
@@ -9,16 +10,13 @@ const ConfigurationsTable = ({ configurations = [], onDelete, onEdit }) => {
             Name
           </td>
           <td className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-            Exchange
-          </td>
-          <td className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
             Input symbol
           </td>
           <td className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
             Output symbol
           </td>
           <td className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
-            Trading pair
+            Lastest Trade
           </td>
           <td className="text-sm font-medium text-gray-900 px-6 py-4 text-left">
             Withdrawal enabled
@@ -34,16 +32,13 @@ const ConfigurationsTable = ({ configurations = [], onDelete, onEdit }) => {
               {configuration.name}
             </td>
             <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-              {configuration.exchangeKey}
-            </td>
-            <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
               {configuration.inputSymbol}
             </td>
             <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
               {configuration.outputSymbol}
             </td>
             <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
-              {configuration.tradingPair}
+              {configuration.latestConversion ? format(new Date(configuration.latestConversion.datetime), 'yyyy-MM-dd hh:mm') : '-'}
             </td>
             <td className="text-sm text-gray-900 font-light px-6 py-4 whitespace-nowrap">
               {configuration.withdrawalEnabled ? "Yes" : "No"}

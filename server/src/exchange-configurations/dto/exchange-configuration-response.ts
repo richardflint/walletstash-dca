@@ -1,6 +1,13 @@
-import { Column } from 'typeorm';
+export class ConversionResponse {
+  id: number;
+  datetime: Date;
+  externalId: string;
+  symbol: string;
+  amount: number;
+}
 
-export class ExchangeConfigurationDto {
+export class ExchangeConfigurationResponse {
+  id: number;
   name: string;
   exchangeKey: string;
   apiUsername: string;
@@ -17,4 +24,5 @@ export class ExchangeConfigurationDto {
   withdrawalEnabled: boolean;
   tradingThreshold: number;
   withdrawalThreshold: number;
+  latestConversion: ConversionResponse;
 }
