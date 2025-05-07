@@ -11,7 +11,10 @@ describe('DcaService', () => {
   let exchangeConfigurationsService: ExchangeConfigurationsService;
 
   beforeEach(async () => {
-    exchangeConfigurationsService = new ExchangeConfigurationsService(null);
+    exchangeConfigurationsService = new ExchangeConfigurationsService(
+      null,
+      null,
+    );
     service = new DcaService(exchangeConfigurationsService);
   });
 
@@ -88,9 +91,14 @@ describe('DcaService', () => {
       .spyOn(ExchangeFactory, 'create')
       .mockImplementation(() => mockExchange);
 
+    const addConversionSpy = jest
+      .spyOn(exchangeConfigurationsService, 'addConversion')
+      .mockImplementation();
+
     await service.performDca();
 
     expect(mockExchange.performConversion).toHaveBeenCalled();
+    expect(addConversionSpy).toHaveBeenCalled();
   });
 
   test('should not withdraw when existing pending withdrawal', async () => {

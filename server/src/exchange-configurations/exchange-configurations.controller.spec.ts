@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { ExchangeConfigurationRequest } from './dto/exchange-configuration-request';
+import { ExchangeConfiguration } from './exchange-configuration.entity';
 import { ExchangeConfigurationsController } from './exchange-configurations.controller';
 import { ExchangeConfigurationsService } from './exchange-configurations.service';
-import { ExchangeConfiguration } from './exchange-configuration.entity';
 
 const exchangeConfiguration1 = {
   id: 1,
@@ -31,13 +32,14 @@ describe('ExchangeConfigurationsController', () => {
           useValue: {
             create: jest
               .fn()
-              .mockImplementation((configuration: ExchangeConfiguration) =>
-                Promise.resolve({ id: 1, ...configuration }),
+              .mockImplementation(
+                (configuration: ExchangeConfigurationRequest) =>
+                  Promise.resolve({ id: 1, ...configuration }),
               ),
             update: jest
               .fn()
               .mockImplementation(
-                (id: number, configuration: ExchangeConfiguration) =>
+                (id: number, configuration: ExchangeConfigurationRequest) =>
                   Promise.resolve({ id: 1, ...configuration }),
               ),
             findAll: jest
@@ -71,7 +73,7 @@ describe('ExchangeConfigurationsController', () => {
 
   describe('create', () => {
     test('should create a configuration', async () => {
-      const newExchangeConfiguration: ExchangeConfiguration = {
+      const newExchangeConfiguration: ExchangeConfigurationRequest = {
         name: 'test configuration',
         exchangeKey: '',
         apiUsername: '',
@@ -85,7 +87,7 @@ describe('ExchangeConfigurationsController', () => {
         withdrawalTag: '',
         customTradingParams: '',
         customWithdrawParams: '',
-      } as ExchangeConfiguration;
+      } as ExchangeConfigurationRequest;
 
       expect(await controller.create(newExchangeConfiguration)).toEqual({
         id: 1,
@@ -110,14 +112,14 @@ describe('ExchangeConfigurationsController', () => {
 
   describe('update', () => {
     test('should update configurations', async () => {
-      const updatedExchangeConfiguration: ExchangeConfiguration = {
-        id: 1,
+      const updatedExchangeConfiguration: ExchangeConfigurationRequest = {
         name: 'updated',
-      } as ExchangeConfiguration;
+      } as ExchangeConfigurationRequest;
 
-      expect(await controller.update(1, updatedExchangeConfiguration)).toEqual(
-        updatedExchangeConfiguration,
-      );
+      expect(await controller.update(1, updatedExchangeConfiguration)).toEqual({
+        id: 1,
+        ...updatedExchangeConfiguration,
+      });
       expect(service.update).toHaveBeenCalledWith(
         1,
         updatedExchangeConfiguration,

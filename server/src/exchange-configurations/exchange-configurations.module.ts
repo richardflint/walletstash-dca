@@ -3,11 +3,12 @@ import { ExchangeConfigurationsController } from './exchange-configurations.cont
 import { ExchangeConfigurationsService } from './exchange-configurations.service';
 import { ExchangeConfiguration } from './exchange-configuration.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Conversion } from './conversion.entity';
 
 @Module({
   controllers: [ExchangeConfigurationsController],
   providers: [ExchangeConfigurationsService],
-  imports: [TypeOrmModule.forFeature([ExchangeConfiguration])],
+  imports: [TypeOrmModule.forFeature([ExchangeConfiguration, Conversion])],
   exports: [ExchangeConfigurationsService],
 })
 export class ExchangeConfigurationsModule {}

@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-import { ExchangeConfigurationDto } from './dto/exchange-configuration.dto';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { ExchangeConfigurationRequest } from './dto/exchange-configuration-request';
+import { Conversion } from './conversion.entity';
 
 @Entity()
 export class ExchangeConfiguration {
@@ -37,9 +38,11 @@ export class ExchangeConfiguration {
   tradingThreshold: number;
   @Column({ default: 0 })
   withdrawalThreshold: number;
+  @OneToMany(() => Conversion, (conversion) => conversion.configuration)
+  conversions: Conversion[];
 
   mapTo(
-    exchangeConfiguration: ExchangeConfigurationDto,
+    exchangeConfiguration: ExchangeConfigurationRequest,
   ): ExchangeConfiguration {
     this.name = exchangeConfiguration.name;
     this.exchangeKey = exchangeConfiguration.exchangeKey;
@@ -58,5 +61,14 @@ export class ExchangeConfiguration {
     this.tradingThreshold = exchangeConfiguration.tradingThreshold;
     this.withdrawalThreshold = exchangeConfiguration.withdrawalThreshold;
     return this;
+  }
+
+  public get getLatestConversion(): Conversion {
+    return this.conversions
+      ?.sort(
+        (a: Conversion, b: Conversion) =>
+          b.datetime.getTime() - a.datetime.getTime(),
+      )
+      .shift();
   }
 }

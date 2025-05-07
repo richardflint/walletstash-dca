@@ -42,6 +42,13 @@ export class DcaService {
               inputBalance,
               configuration,
             );
+            this.exchangeConfigurationsService.addConversion(
+              configuration.id,
+              new Date(),
+              conversion.id,
+              conversion.symbol,
+              conversion.amount,
+            );
             this.logger.log(
               `Conversion: ${conversion.id}, ${conversion.symbol}, ${conversion.amount}`,
             );
